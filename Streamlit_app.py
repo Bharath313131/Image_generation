@@ -1,3 +1,4 @@
+!pip install diffusers transformers accelerate
 import streamlit as st
 from diffusers import StableDiffusionPipeline
 import torch
