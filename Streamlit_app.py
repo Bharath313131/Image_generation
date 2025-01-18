@@ -34,7 +34,7 @@ if st.button("Generate Images"):
             torch_dtype=torch.float16,
             use_safetensors=True
         )
-        # pipe = pipe.to("cuda")
+        pipe = pipe.to("cuda")
 
     # Generate Images
     with st.spinner("Generating images..."):
