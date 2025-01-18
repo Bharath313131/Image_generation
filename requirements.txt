@@ -1,6 +1,6 @@
 streamlit
-diffusers
-transformers
-accelerate
-torch
+diffusers==0.22.1
+torch==2.0.1+cpu
+transformers==4.30.0
+safetensors
 Pillow
