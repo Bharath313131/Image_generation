@@ -4,4 +4,3 @@ transformers
 accelerate
 torch
 Pillow
-GPU
