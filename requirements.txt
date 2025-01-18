@@ -1,6 +1,6 @@
-streamlit
+streamlit==1.41.1
 diffusers==0.22.1
-torch==2.0.1+cpu
+torch==2.2.1  # Use a compatible version
 transformers==4.30.0
 safetensors
 Pillow
