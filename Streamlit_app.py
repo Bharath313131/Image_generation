@@ -1,6 +1,6 @@
 # pip install diffusers transformers accelerate
 import streamlit as st
-from diffusers import StableDiffusion3Pipeline
+from diffusers import StableDiffusionPipeline
 import torch
 from PIL import Image
 
@@ -29,7 +29,7 @@ num_images = st.sidebar.slider("Number of Images", min_value=1, max_value=4, val
 if st.button("Generate Images"):
     # Load Model
     with st.spinner("Loading the model... This may take a few seconds."):
-        pipe = StableDiffusion3Pipeline.from_pretrained(
+        pipe = StableDiffusionPipeline.from_pretrained(
             model_option,
             torch_dtype=torch.float32,
             use_safetensors=True
