@@ -31,7 +31,7 @@ if st.button("Generate Images"):
     with st.spinner("Loading the model... This may take a few seconds."):
         pipe = StableDiffusionPipeline.from_pretrained(
             model_option,
-            torch_dtype=torch.float16,
+            torch_dtype=torch.float32,
             use_safetensors=True
         )
         pipe = pipe.to("cpu")
