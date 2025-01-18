@@ -1,46 +1,62 @@
-# pip install diffusers transformers accelerate
 import streamlit as st
 from diffusers import StableDiffusionPipeline
 import torch
 from PIL import Image
 
-# Title and Introduction
-st.title("Stable Diffusion Image Generator")
+# Title and Description
+st.title("Stable Diffusion Image Generator (Optimized for CPU)")
 st.markdown("""
-Generate stunning images from text prompts using Stable Diffusion models.
+Generate images from text prompts using Stable Diffusion. This app is optimized for CPU setups and includes options for local model loading.
 """)
 
-# Model Selection
-model_option = st.selectbox(
-    "Choose a model:",
-    ["dreamlike-art/dreamlike-diffusion-1.0", "stabilityai/stable-diffusion-xl-base-1.0"]
+# Sidebar Configuration
+st.sidebar.header("Settings")
+
+model_choice = st.sidebar.selectbox(
+    "Select a Stable Diffusion Model:",
+    ["dreamlike-art/dreamlike-diffusion-1.0", "stabilityai/stable-diffusion-xl-base-1.0"],
 )
 
-# Prompt Input
-prompt = st.text_input("Enter your text prompt:", "A serene landscape with mountains and a lake")
+local_load = st.sidebar.checkbox("Use locally downloaded models", value=False)
+image_height = st.sidebar.slider("Image Height (px)", 256, 1024, 512, step=64)
+image_width = st.sidebar.slider("Image Width (px)", 256, 1024, 512, step=64)
+num_images = st.sidebar.slider("Number of Images", 1, 2, 1)  # Reduced for performance on CPU.
 
-# Image Configuration
-st.sidebar.header("Image Configuration")
-height = st.sidebar.number_input("Image Height", min_value=256, max_value=1024, value=512, step=64)
-width = st.sidebar.number_input("Image Width", min_value=256, max_value=1024, value=512, step=64)
-num_images = st.sidebar.slider("Number of Images", min_value=1, max_value=4, value=1)
+# User Prompt Input
+prompt = st.text_input("Enter your text prompt:", "A futuristic cityscape at sunset")
 
-# Generate Button
-if st.button("Generate Images"):
-    # Load Model
-    with st.spinner("Loading the model... This may take a few seconds."):
-        pipe = StableDiffusionPipeline.from_pretrained(
-            model_option,
-            torch_dtype=torch.float32,
-            use_safetensors=True
-        )
-        pipe = pipe.to("cpu")
+# Generate Images Button
+if st.button("Generate Image"):
+    # Load the Model
+    with st.spinner("Loading model... This may take some time."):
+        try:
+            # Load model locally or from Hugging Face
+            if local_load:
+                model_path = "./model_directory"
+                pipe = StableDiffusionPipeline.from_pretrained(
+                    model_path,
+                    torch_dtype=torch.float32,  # Use CPU-compatible precision
+                )
+            else:
+                pipe = StableDiffusionPipeline.from_pretrained(
+                    model_choice,
+                    torch_dtype=torch.float32,  # Use CPU precision
+                )
+            pipe = pipe.to("cpu")  # Ensure it runs on CPU
+        except Exception as e:
+            st.error(f"Failed to load the model: {e}")
+            st.stop()
 
     # Generate Images
-    with st.spinner("Generating images..."):
-        result_images = pipe(prompt, height=height, width=width, num_images_per_prompt=num_images).images
+    with st.spinner("Generating images... Please wait."):
+        try:
+            result = pipe(prompt, height=image_height, width=image_width, num_images_per_prompt=num_images)
+            images = result.images
+        except Exception as e:
+            st.error(f"Error during image generation: {e}")
+            st.stop()
 
     # Display Images
-    st.header("Generated Images")
-    for img in result_images:
-        st.image(img, use_column_width=True)
+    st.success("Image generation complete!")
+    for i, img in enumerate(images):
+        st.image(img, caption=f"Generated Image {i+1}", use_column_width=True)
